@@ -47,11 +47,10 @@ async def site(ctx):
 async def info(ctx):
     print(f"Info triggered.")
     mention = f"<@432316900735713290>"
-    embed = discord.Embed(title="MC Gamer Bot", description=f"A bot made by {mention}", color=discord.Color.blue())
-    embed.add_field(name="Author", value="MC Gamer God", inline=False)
+    embed = discord.Embed(title="MC Gamer Bot", description=f"A bot by {mention}", color=discord.Color.blue())
     embed.add_field(name="Email", value="christopher.jones2559@gmail.com", inline=False)
     embed.add_field(name="Version", value="0.1.0", inline=False)
-    embed.add_field(name="Last updated", value="discord.py", inline=False)
+    embed.add_field(name="Last updated", value="03/09/2025", inline=False)
     await ctx.send(embed=embed)
 
 bot.remove_command("help")  # remove the default help so it can be replaced
