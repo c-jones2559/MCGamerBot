@@ -14,24 +14,6 @@ async def on_ready():
     channel = bot.get_channel(1412831975147962472)
     await channel.send("Hey gamers!")
 
-@bot.event
-async def on_close():
-    print("Bot is shutting down")
-    channel = bot.get_channel(1412831975147962472)
-    await channel.send("I'm off!")
-
-@bot.event
-async def on_disconnect():
-    print("Bot has disconnected")
-    channel = bot.get_channel(1412831975147962472)
-    await channel.send("I have disconnected")
-
-@bot.event
-async def on_resumed():
-    print("Bot has resumed")
-    channel = bot.get_channel(1412831975147962472)
-    await channel.send("I have resumed")
-
 @bot.command(help="Echos back the message after the command")
 async def echo(ctx, *, arg):
     print(f"Echo triggered.")
