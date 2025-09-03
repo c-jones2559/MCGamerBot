@@ -36,13 +36,23 @@ async def title(ctx, *, arg):
     for word in arg.split():
         word = word[0].upper() + word[1:].lower()
         newMessage += word + " "
-    
     await ctx.send(newMessage)
 
 @bot.command(help="Sends a link to my cool site")
 async def site(ctx):
     print(f"Site triggered.")
     await ctx.send("Doesn't exist yet sorry but it might one day!")
+
+@bot.command(help="Gives details about the bot")
+async def info(ctx):
+    print(f"Info triggered.")
+    mention = f"<@432316900735713290>"
+    embed = discord.Embed(title="MC Gamer Bot", description=f"A bot made by {mention}", color=discord.Color.blue())
+    embed.add_field(name="Author", value="MC Gamer God", inline=False)
+    embed.add_field(name="Email", value="christopher.jones2559@gmail.com", inline=False)
+    embed.add_field(name="Version", value="0.1.0", inline=False)
+    embed.add_field(name="Last updated", value="discord.py", inline=False)
+    await ctx.send(embed=embed)
 
 bot.remove_command("help")  # remove the default help so it can be replaced
 @bot.command(help="Shows this message")
