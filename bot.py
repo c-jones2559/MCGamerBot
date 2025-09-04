@@ -66,9 +66,15 @@ bot.remove_command("help")  # remove the default help so it can be replaced
 @bot.command(help="Shows this message")
 async def help(ctx):
     log_command("help", ctx)
-    embed = discord.Embed(title="Help", description="Here are the commands", colour=discord.Colour.blurple())
-    for cmd in bot.commands:
-        embed.add_field(name=f"!{cmd.name}", value=cmd.help or "No description", inline=False)
+    embed = discord.Embed(title="Help", colour=discord.Colour.blurple())
+
+    commandsSorted = sorted(bot.commands, key=lambda c: c.name)  # Sort commands alphabetically
+    for cmd in commandsSorted:
+        if cmd.name == "help":
+            pass # help goes at the end of help
+        else:
+            embed.add_field(name=f"!{cmd.name}", value=cmd.help or "No description", inline=False)
+    embed.add_field(name=f"!help", value="Shows this message", inline=False)
     await ctx.send(embed=embed)
 
 @bot.event
@@ -76,6 +82,8 @@ async def on_command_error(ctx, error):
     log_command("error", ctx)
     if isinstance(error, commands.CommandNotFound):
         await ctx.send("Command not found. Use !help to see available commands.")
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("Missing required argument. Please check the command usage.")
     else:
         await ctx.send("An error occurred while processing the command.")
         print(f"Error: {error}")
