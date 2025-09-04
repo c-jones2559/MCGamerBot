@@ -3,7 +3,7 @@ from discord.ext import commands
 import os
 from dotenv import load_dotenv
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -23,7 +23,7 @@ def log_command(command_name, ctx, arg=None):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     guild_name = "DMs" if ctx.guild is None else ctx.guild.name
     channel_name = "" if ctx.guild is None else f"{ctx.channel.name} of "
-    arg_name = "" if arg is None else f" with argument: {arg}"
+    arg_name = "" if arg is None else f" with argument \"{arg}\""
 
     print(f"{current_time} {ctx.author} triggered {command_name} in {channel_name}{guild_name}{arg_name}.")
 
@@ -95,7 +95,7 @@ async def invite(ctx):
     await ctx.send("https://bit.ly/4mGvKZb")
 
 #roll
-@bot.command(help="Sends a random number from 1 — number.", usage = "!roll <number>")
+@bot.command(help="Sends a random number from 1 to a given value.", usage = "!roll <number>")
 async def roll(ctx, arg: int):
     log_command("roll", ctx, arg)
     if arg < 1:
@@ -110,7 +110,7 @@ async def roll(ctx, arg: int):
             await ctx.send(f"{result}.")
 
 #rolle
-@bot.command(help="Sends a random number from 1 — number. (but embed :O)", usage = "!rolle <number>")
+@bot.command(help="Sends a random number from 1 to a given value. (but embed :O)", usage = "!rolle <number>")
 async def rolle(ctx, arg: int):
     log_command("rolle", ctx, arg)
     embed = discord.Embed(title=f"Roll {arg}", colour=discord.Colour.blurple())
@@ -137,6 +137,21 @@ async def quote(ctx):
         return
     quote = random.choice(lines).strip()
     await ctx.send(quote)
+
+#schedule
+@bot.command(help="Sends a message to a given channel at a given time.", usage = "!schedule <message> <channel_id> <minutes_from_now>")
+async def schedule(ctx, arg, channel_id: int, minutes_from_now: int):
+    log_command("schedule", ctx, f"{arg} {channel_id} {minutes_from_now}")
+    if minutes_from_now < 0:
+        await ctx.send("Please provide a non-negative integer for minutes from now.")
+        return
+    channel = bot.get_channel(channel_id)
+    if channel is None:
+        await ctx.send("Channel not found. Please provide a valid channel ID.")
+        return
+    await ctx.send(f"Message scheduled to be sent in {minutes_from_now} minute(s).")
+    await discord.utils.sleep_until(datetime.now() + timedelta(minutes=minutes_from_now))
+    await channel.send(arg)
 
 #help
 bot.remove_command("help")  #remove the default help so it can be replaced
