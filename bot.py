@@ -234,7 +234,7 @@ async def dm(interaction, userid: str, *, arg: str):
 class Board:
     def __init__(self, difficulty):
         self.board = ["." for _ in range(9)]  # A list to hold the board state
-        self.difficulty = difficulty  # 0=easy, 1=medium, 2=hard, 3=human
+        self.difficulty = difficulty  # 0=Noob, 1=Pro, 2=Hacker, 3=human
     
     def return_board(self):
         boardStr = ""
@@ -345,15 +345,17 @@ class TicTacToeButton(discord.ui.Button):
             return
         elif self.board.checkWin() == -1:
             await interaction.response.edit_message(content=f"{self.board.return_board()}\nYou played X", view=self.view)
-            await interaction.followup.send("It's a draw! GG!")
+            await interaction.followup.send("It's a draw! GG!\nRematch?")
             return
 
-        if self.board.difficulty == "Easy":
-            playEasy(self.board)
-        elif self.board.difficulty == "Medium":
-            playMedium(self.board)
-        elif self.board.difficulty == "Hard":
-            playHard(self.board)
+        if self.board.difficulty == "Noob":
+            playNoob(self.board)
+        elif self.board.difficulty == "Pro":
+            playPro(self.board)
+        elif self.board.difficulty == "Hacker":
+            playHacker(self.board)
+        elif self.board.difficulty == "God":
+            playGod(self.board)
         elif self.board.difficulty == "Human":
             pass
             #await interaction.followup.send("Your opponent's turn. Please wait for them to click a button.")
@@ -378,7 +380,7 @@ class TicTacToeView(discord.ui.View):
                 self.add_item(TicTacToeButton(row, col, board))
 
 #tictactoe
-def playEasy(board: Board):
+def playNoob(board: Board):
     for i in range(9):
         if board.board[i] == ".":
             break
@@ -390,7 +392,7 @@ def playEasy(board: Board):
     board.board[i] = "O"
     return
         
-def playMedium(board: Board):
+def playPro(board: Board):
     #check if can win
     for i in range(9):
         if board.board[i] == ".":
@@ -406,16 +408,62 @@ def playMedium(board: Board):
                 board.board[i] = "O"
                 return
             board.board[i] = "."
-    #otherwise play easy
-    playEasy(board)
+    #otherwise play Noob
+    playNoob(board)
 
-def playHard(board: Board):
+def playHacker(board: Board):
+    empty = 0
+    for i in range(9):
+        if board.board[i] == ".":
+            empty += 1
+    if empty == 8:
+        if board.board[4] == ".":
+            board.board[4] = "O"
+            return
+        else:
+            board.board[0] = "O"
+            return
+    elif empty == 6:
+        if board.board[4] == "X":
+            if board.board[0] == ".":
+                board.board[0] = "O"
+                return
+            elif board.board[2] == ".":
+                board.board[2] = "O"
+                return
+            elif board.board[6] == ".":
+                board.board[6] = "O"
+                return
+            elif board.board[8] == ".":
+                board.board[8] = "O"
+                return
+        elif (board.board[0] == "X" and board.board[8]) == "X" or (board.board[2] == "X" and board.board[6]) == "X":
+            if board.board[1] == ".":
+                board.board[1] = "O"
+                return
+            elif board.board[3] == ".":
+                board.board[3] = "O"
+                return
+            elif board.board[5] == ".":
+                board.board[5] = "O"
+                return
+            elif board.board[7] == ".":
+                board.board[7] = "O"
+                return
+        else:
+            playPro(board)
+            return
+    else:
+        playPro(board)
+    return
+
+def playGod(board: Board):
     for i in range(9):
         if board.board[i] == ".":
             board.board[i] = "O"
     return
 
-async def playGame(interaction, board: Board): #0=easy, 1=medium, 2=hard, 3=human
+async def playGame(interaction, board: Board): #0=Noob, 1=Pro, 2=Hacker, 3=human
     view = TicTacToeView(board)
     board_str = f"{board.return_board()}\nChoose your move:"
     try:
@@ -428,9 +476,10 @@ async def playGame(interaction, board: Board): #0=easy, 1=medium, 2=hard, 3=huma
 class Dropdown(discord.ui.Select):
     def __init__(self):
         options = [
-            discord.SelectOption(label="Easy"),
-            discord.SelectOption(label="Medium"),
-            discord.SelectOption(label="Hard"),
+            discord.SelectOption(label="Noob"),
+            discord.SelectOption(label="Pro"),
+            discord.SelectOption(label="Hacker"),
+            discord.SelectOption(label="God"),
             discord.SelectOption(label="Human", description="Play with a friend"),
         ]
         super().__init__(placeholder="Pick your opponent.", options=options, min_values=1, max_values=1)
