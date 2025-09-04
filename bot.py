@@ -17,45 +17,50 @@ async def on_ready():
     await channel.send("Hey gamers!")
 
 #logging
-def log_command(command_name, ctx):
+#def log_command(command_name, ctx):
+#    log_command(command_name, ctx, None)
+def log_command(command_name, ctx, arg=None):
     guild_name = "DMs" if ctx.guild is None else ctx.guild.name
-    print(f"{ctx.author} triggered {command_name} in {guild_name}.")
+    channel_name = "" if ctx.guild is None else f"{ctx.channel.name} of "
+    arg_name = "" if arg is None else f" with argument: {arg}"
+
+    print(f"{ctx.author} triggered {command_name} in {channel_name}{guild_name}{arg_name}.")
 
 #ping
-@bot.command(help="Sends pong")
+@bot.command(help="Sends pong.", usage = "!ping")
 async def ping(ctx):
     log_command("ping", ctx)
     await ctx.send("pong!")
 
 #echo
-@bot.command(help="Sends back the message after the command")
+@bot.command(help="Sends back the message after the command.", usage = "!echo <message>")
 async def echo(ctx, *, arg):
-    log_command("echo", ctx)
+    log_command("echo", ctx, arg)
     await ctx.send(arg)
 
 #say
-@bot.command(help="Sends back the message after the command and deletes the original message")
+@bot.command(help="Sends back the message after the command and deletes your message.", usage = "!say <message>")
 async def say(ctx, *, arg):
-    log_command("say", ctx)
+    log_command("say", ctx, arg)
     await ctx.message.delete()
     await ctx.send(arg)
 
 #upper
-@bot.command(help="Sends back the message after the command in upper case")
+@bot.command(help="Sends back the message after the command in upper case.", usage = "!upper <message>")
 async def upper(ctx, *, arg):
-    log_command("upper", ctx)
+    log_command("upper", ctx, arg)
     await ctx.send(arg.upper())
 
 #lower
-@bot.command(help="Sends back the message after the command in lower case")
+@bot.command(help="Sends back the message after the command in lower case.", usage = "!lower <message>")
 async def lower(ctx, *, arg):
-    log_command("lower", ctx)
+    log_command("lower", ctx, arg)
     await ctx.send(arg.lower())
 
 #title
-@bot.command(help="Sends back the message after the command in title case")
+@bot.command(help="Sends back the message after the command in title case.", usage = "!title <message>")
 async def title(ctx, *, arg):
-    log_command("title", ctx)
+    log_command("title", ctx, arg)
     newMessage = ""
     for word in arg.split():
         word = word[0].upper() + word[1:].lower()
@@ -63,13 +68,13 @@ async def title(ctx, *, arg):
     await ctx.send(newMessage)
 
 #site
-@bot.command(help="Sends a link to my cool site")
+@bot.command(help="Sends a link to my cool site.", usage = "!site")
 async def site(ctx):
     log_command("site", ctx)
     await ctx.send("Doesn't exist yet sorry but it might one day!")
 
 #info
-@bot.command(help="Sends details about the bot")
+@bot.command(help="Sends details about the bot.", usage = "!info")
 async def info(ctx):
     log_command("info", ctx)
     mention = f"<@432316900735713290>"
@@ -80,9 +85,9 @@ async def info(ctx):
     await ctx.send(embed=embed)
 
 #roll
-@bot.command(help="Sends a random number from 1 — input")
+@bot.command(help="Sends a random number from 1 — number.", usage = "!roll <number>")
 async def roll(ctx, arg: int):
-    log_command("roll", ctx)
+    log_command("roll", ctx, arg)
     if arg < 1:
         await ctx.send("Please provide an integer greater than 0.")
     else:
@@ -95,7 +100,7 @@ async def roll(ctx, arg: int):
             await ctx.send(f"{result}.")
 
 #quote
-@bot.command(help="Sends a random quote from Morgan Pritchard")
+@bot.command(help="Sends a random quote from Morgan Pritchard.", usage = "!quote")
 async def quote(ctx):
     log_command("quote", ctx)
     with open("quotes.txt", "r", encoding="utf-8") as file:
@@ -107,18 +112,18 @@ async def quote(ctx):
     await ctx.send(quote)
 
 #help
-bot.remove_command("help")  # remove the default help so it can be replaced
-@bot.command(help="Shows this message")
+bot.remove_command("help")  #remove the default help so it can be replaced
+@bot.command(help="Shows this message.", usage = "!help")
 async def help(ctx):
     log_command("help", ctx)
     embed = discord.Embed(title="Help", colour=discord.Colour.blurple())
 
-    commandsSorted = sorted(bot.commands, key=lambda c: c.name)  # Sort commands alphabetically
+    commandsSorted = sorted(bot.commands, key=lambda c: c.name)  #sort commands alphabetically
     for cmd in commandsSorted:
         if cmd.name == "help":
-            pass # help goes at the end of help
+            pass #help goes at the end of help
         else:
-            embed.add_field(name=f"!{cmd.name}", value=cmd.help or "No description", inline=False)
+            embed.add_field(name=f"{cmd.usage}", value=cmd.help or "No description", inline=False)
     embed.add_field(name=f"!help", value="Shows this message", inline=False)
     await ctx.send(embed=embed)
 
@@ -130,6 +135,10 @@ async def on_command_error(ctx, error):
         await ctx.send("Command not found. Use !help to see available commands.")
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("Missing required argument. Please check the command usage.")
+    elif isinstance(error, commands.BadArgument):
+        await ctx.send("Invalid argument type. Please check the command usage.")
+    elif isinstance(error, commands.MissingPermissions):
+        await ctx.send(f"You do not have the required permissions to use this command.")
     else:
         await ctx.send("An error occurred while processing the command.")
         print(f"Error: {error}")
