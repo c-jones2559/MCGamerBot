@@ -167,9 +167,11 @@ async def DM(ctx, userID: int, arg):
     if userID == 1412830085429330142 :
         await ctx.send("I can't DM myself!")
         return
-    user = await bot.fetch_user(userID)
+    user = bot.get_user(userID)
     if user is None:
-        await ctx.send("I couldn't find that user. Please make sure the ID is correct.")
+        user = await bot.fetch_user(userID)
+    if user is None:
+        await ctx.send("I couldn't find that user. Please make sure the ID is correct. I can't DM people who haven't shared a server with me or who have DMs off.")
         return
     await user.send(arg)
     await ctx.send(f"Message sent to {user}.")
