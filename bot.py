@@ -17,8 +17,6 @@ async def on_ready():
     await channel.send("Hey gamers!")
 
 #logging
-#def log_command(command_name, ctx):
-#    log_command(command_name, ctx, None)
 def log_command(command_name, ctx, arg=None):
     guild_name = "DMs" if ctx.guild is None else ctx.guild.name
     channel_name = "" if ctx.guild is None else f"{ctx.channel.name} of "
@@ -42,6 +40,9 @@ async def echo(ctx, *, arg):
 @bot.command(help="Sends back the message after the command and deletes your message.", usage = "!say <message>")
 async def say(ctx, *, arg):
     log_command("say", ctx, arg)
+    if ctx.guild is None:
+        await ctx.send("This command can only be used in a server. Maybe use !echo instead?")
+        return
     await ctx.message.delete()
     await ctx.send(arg)
 
@@ -137,8 +138,6 @@ async def on_command_error(ctx, error):
         await ctx.send("Missing required argument. Please check the command usage.")
     elif isinstance(error, commands.BadArgument):
         await ctx.send("Invalid argument type. Please check the command usage.")
-    elif isinstance(error, commands.MissingPermissions):
-        await ctx.send(f"You do not have the required permissions to use this command.")
     else:
         await ctx.send("An error occurred while processing the command.")
         print(f"Error: {error}")
