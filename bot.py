@@ -37,11 +37,14 @@ def log_command(command_name, interaction, arg=None):
 
     print(f"{current_time} {interaction.user} triggered {command_name} in {channel_name}{guild_name}{arg_name}.")
 
-#ping
-@bot.tree.command(name="ping", description="Sends pong.", guild=GUILD_ID)
+@bot.tree.command(name="ping", description="Sends pong and latency.", guild=GUILD_ID)
 async def ping(interaction: discord.Interaction):
     log_command("ping", interaction)
-    await interaction.response.send_message("pong!")
+    before = datetime.now()
+    await interaction.response.defer(thinking=True)
+    after = datetime.now()
+    latency = (after - before).total_seconds() * 1000  # ms
+    await interaction.followup.send(f"Pong! `{latency:.2f}ms`")
 
 #echo
 @bot.tree.command(name = "echo", description="Sends back the message after the command.", guild=GUILD_ID)
@@ -114,7 +117,7 @@ class RollView(discord.ui.View):
     @discord.ui.button(label="Roll Again", style=discord.ButtonStyle.primary)
     async def roll_again(self, interaction: discord.Interaction, button: discord.ui.Button):
         max=self.max
-        log_command("roll", interaction, max)
+        log_command("reroll", interaction, max)
         result = random.randint(1, max)
         if result == max:
             await interaction.response.send_message(f"{result}! Nice!")
@@ -202,16 +205,16 @@ async def dm(interaction, userid: str, *, arg: str):
     
     if not userid.isdigit():
         if interaction.guild is None:
-            await interaction.response.send_message("Please provide a user ID when using this command in DMs.")
+            await interaction.response.send_message("Please provide a user ID when using this command in DMs.", ephemeral=True)
             return
         userid = await findUser(interaction, username=userid)
         if userid is None:
-            await interaction.response.send_message("I couldn't find that user. Please make sure the username is correct. I can only search for usernames in this server.")
+            await interaction.response.send_message("I couldn't find that user. Please make sure the username is correct. I can only search for usernames in this server.", ephemeral=True)
             return
         #print(f"Found user ID: {userID}")
 
     if userid == 1412830085429330142:
-        await interaction.response.send_message("I can't DM myself!")
+        await interaction.response.send_message("I can't DM myself!", ephemeral=True)
         return
     userid = int(userid)
 
@@ -219,10 +222,135 @@ async def dm(interaction, userid: str, *, arg: str):
     if user is None:
         user = await bot.fetch_user(userid)
     if user is None:
-        await interaction.response.send_message("I couldn't find that user. Please make sure the ID is correct. I can't DM people who haven't shared a server with me or who have DMs off.")
+        await interaction.response.send_message("I couldn't find that user. Please make sure the ID is correct. I can't DM people who haven't shared a server with me or who have DMs off.", ephemeral=True)
         return
     await user.send(arg)
-    await interaction.response.send_message(f"Message sent to {user}.")
+    await interaction.response.send_message(f"Message sent to {user}.", ephemeral=True)
+
+
+#tictactoe
+
+
+class Board:
+    def __init__(self, difficulty):
+        self.board = ["." for _ in range(9)]  # A list to hold the board state
+        self.difficulty = difficulty  # 0=easy, 1=medium, 2=hard, 3=human
+    
+    def return_board(self):
+        boardStr = ""
+        for row in [self.board[i*3:(i+1)*3] for i in range(3)]:
+            boardStr += ("| " + " | ".join(row) + " |")
+            boardStr += "\n"
+        return boardStr
+    
+    def checkWin(self):
+        # Check rows, columns, and diagonals for a win
+        for row in range(3):
+            if self.board[row*3] == self.board[row*3 + 1] == self.board[row*3 + 2] != ".":
+                if self.board[row*3] == "X":
+                    return 1
+                return 2
+        for col in range(3):
+            if self.board[col] == self.board[col + 3] == self.board[col + 6] != ".":
+                if self.board[col] == "X":
+                    return 1
+                return 2
+        if self.board[0] == self.board[4] == self.board[8] != ".":
+            if self.board[4] == "X":
+                return 1
+            return 2
+        if self.board[2] == self.board[4] == self.board[6] != ".":
+            if self.board[4] == "X":
+                return 1
+            return 2
+        return 0
+    
+    def getValue(self, int):
+        return self.board[int]
+        
+
+
+class TicTacToeButton(discord.ui.Button):
+    def __init__(self, row: int, col: int, board: Board):
+        super().__init__(style=discord.ButtonStyle.secondary, label=str(row*3+col+1), row=row, disabled=False if board.board[row*3+col] == "." else True)
+        self.row_index = row
+        self.col_index = col
+        self.board = board
+
+    async def callback(self, interaction: discord.Interaction):
+        # You can pass the move to your playGame function here
+        #await interaction.response.send_message(
+        #    f"You clicked row {self.row_index + 1}, column {self.col_index + 1}!",
+        #    ephemeral=True
+        #)
+        for item in self.view.children:
+            item.disabled = True
+        self.board.board[self.row_index * 3 + self.col_index] = "X" 
+        await interaction.response.edit_message(content=f"{self.board.return_board()}\nYou played X", view=self.view)
+        if self.board.checkWin() == 1:
+            await interaction.followup.send("You win! GG!")
+            return
+
+        playEasy(self.board)
+        if self.board.checkWin() == 2:
+            await interaction.followup.send("I win! GG!")
+            return
+        await playGame(interaction, self.board)
+
+
+
+
+
+class TicTacToeView(discord.ui.View):
+    def __init__(self, board: Board):
+        super().__init__(timeout=None)
+        for row in range(3):
+            for col in range(3):
+                self.add_item(TicTacToeButton(row, col, board))
+
+#tictactoe
+def playEasy(board: Board):
+    for i in range(9):
+        if board.board[i] == ".":
+            board.board[i] = "O"
+            return
+
+async def playGame(interaction, board: Board): #0=easy, 1=medium, 2=hard, 3=human
+    view = TicTacToeView(board)
+    board_str = f"{board.return_board()}\nChoose your move:"
+    try:
+        await interaction.response.send_message(board_str, view=view)
+    except discord.InteractionResponded:
+        await interaction.followup.send(board_str, view=view)
+    
+    #await interaction.response.send_message(board.return_board())
+
+class Dropdown(discord.ui.Select):
+    def __init__(self):
+        options = [
+            discord.SelectOption(label="Easy"),
+            discord.SelectOption(label="Medium"),
+            discord.SelectOption(label="Hard"),
+            discord.SelectOption(label="Human", description="Play with a friend"),
+        ]
+        super().__init__(placeholder="Pick your opponent.", options=options, min_values=1, max_values=1)
+
+    async def callback(self, interaction: discord.Interaction):
+        #await interaction.response.send_message(f"You picked: {self.values[0]}", ephemeral=True)
+
+        await playGame(interaction, Board(self.values[0]))
+        #await interaction.followup.send("This feature is coming soon!")
+
+
+class DropdownView(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.add_item(Dropdown())
+
+@bot.tree.command(description="Play a game of tic tac toe with another user, or against a bot.", name="tictactoe", guild=GUILD_ID)
+async def tictactoe(interaction):
+    log_command("tictactoe", interaction)
+    await interaction.response.send_message("Choose an option:", view=DropdownView())
 
 #help
 bot.remove_command("help")  #remove the default help so it can be replaced
