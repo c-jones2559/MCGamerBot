@@ -2,43 +2,58 @@ import discord
 from discord.ext import commands
 import os
 from dotenv import load_dotenv
+import random
 
 intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+#startup
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
     channel = bot.get_channel(1412831975147962472)
     await channel.send("Hey gamers!")
 
+#logging
 def log_command(command_name, ctx):
     guild_name = "DMs" if ctx.guild is None else ctx.guild.name
     print(f"{ctx.author} triggered {command_name} in {guild_name}.")
 
-@bot.command(help="Responds with pong")
+#ping
+@bot.command(help="Sends pong")
 async def ping(ctx):
     log_command("ping", ctx)
     await ctx.send("pong!")
 
-@bot.command(help="Echos back the message after the command")
+#echo
+@bot.command(help="Sends back the message after the command")
 async def echo(ctx, *, arg):
     log_command("echo", ctx)
     await ctx.send(arg)
 
-@bot.command(help="Echos back the message after the command in upper case")
+#say
+@bot.command(help="Sends back the message after the command and deletes the original message")
+async def say(ctx, *, arg):
+    log_command("say", ctx)
+    await ctx.message.delete()
+    await ctx.send(arg)
+
+#upper
+@bot.command(help="Sends back the message after the command in upper case")
 async def upper(ctx, *, arg):
     log_command("upper", ctx)
     await ctx.send(arg.upper())
 
-@bot.command(help="Echos back the message after the command in lower case")
+#lower
+@bot.command(help="Sends back the message after the command in lower case")
 async def lower(ctx, *, arg):
     log_command("lower", ctx)
     await ctx.send(arg.lower())
 
-@bot.command(help="Echos back the message after the command in title case")
+#title
+@bot.command(help="Sends back the message after the command in title case")
 async def title(ctx, *, arg):
     log_command("title", ctx)
     newMessage = ""
@@ -47,21 +62,39 @@ async def title(ctx, *, arg):
         newMessage += word + " "
     await ctx.send(newMessage)
 
+#site
 @bot.command(help="Sends a link to my cool site")
 async def site(ctx):
     log_command("site", ctx)
     await ctx.send("Doesn't exist yet sorry but it might one day!")
 
-@bot.command(help="Gives details about the bot")
+#info
+@bot.command(help="Sends details about the bot")
 async def info(ctx):
     log_command("info", ctx)
     mention = f"<@432316900735713290>"
     embed = discord.Embed(title="MC Gamer Bot", description=f"A bot by {mention}", colour=discord.Colour.blurple())
     embed.add_field(name="Email", value="christopher.jones2559@gmail.com", inline=False)
     embed.add_field(name="Version", value="0.1.0", inline=False)
-    embed.add_field(name="Last updated", value="03/09/2025", inline=False)
+    embed.add_field(name="Last updated", value="04/09/2025", inline=False)
     await ctx.send(embed=embed)
 
+#roll
+@bot.command(help="Sends a random number from 1 — input")
+async def roll(ctx, arg: int):
+    log_command("roll", ctx)
+    if arg < 1:
+        await ctx.send("Please provide an integer greater than 0.")
+    else:
+        result = random.randint(1, arg)
+        if result == arg:
+            await ctx.send(f"{result}! Nice!")
+        elif result == 1:
+            await ctx.send(f"{result}. Unlucky!")
+        else:
+            await ctx.send(f"{result}.")
+
+#help
 bot.remove_command("help")  # remove the default help so it can be replaced
 @bot.command(help="Shows this message")
 async def help(ctx):
@@ -77,6 +110,7 @@ async def help(ctx):
     embed.add_field(name=f"!help", value="Shows this message", inline=False)
     await ctx.send(embed=embed)
 
+#error
 @bot.event
 async def on_command_error(ctx, error):
     log_command("error", ctx)
@@ -88,7 +122,7 @@ async def on_command_error(ctx, error):
         await ctx.send("An error occurred while processing the command.")
         print(f"Error: {error}")
 
-# Load token and run
+#token and run
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 bot.run(TOKEN)
