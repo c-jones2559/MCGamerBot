@@ -94,6 +94,18 @@ async def roll(ctx, arg: int):
         else:
             await ctx.send(f"{result}.")
 
+#quote
+@bot.command(help="Sends a random quote from Morgan Pritchard")
+async def quote(ctx):
+    log_command("quote", ctx)
+    with open("quotes.txt", "r", encoding="utf-8") as file:
+        lines = file.readlines()
+    if not lines:
+        await ctx.send("No quotes found.")
+        return
+    quote = random.choice(lines).strip()
+    await ctx.send(quote)
+
 #help
 bot.remove_command("help")  # remove the default help so it can be replaced
 @bot.command(help="Shows this message")
