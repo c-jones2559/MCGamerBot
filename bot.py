@@ -35,7 +35,11 @@ def log_command(command_name, interaction, arg=None):
     channel_name = "" if interaction.guild is None else f"{interaction.channel.name} of "
     arg_name = "" if arg is None else f" with argument \"{arg}\""
 
-    print(f"{current_time} {interaction.user} triggered {command_name} in {channel_name}{guild_name}{arg_name}.")
+    output = f"{current_time} {interaction.user} triggered {command_name} in {channel_name}{guild_name}{arg_name}."
+    print(output)
+    with open(".log", "a") as f:
+        f.write(f"{current_time} {interaction.user} triggered {command_name} in {channel_name}{guild_name}{arg_name}.\n")
+
 
 @bot.tree.command(name="ping", description="Sends pong and latency.", guild=GUILD_ID)
 async def ping(interaction: discord.Interaction):
@@ -227,7 +231,31 @@ async def dm(interaction, userid: str, *, arg: str):
     await user.send(arg)
     await interaction.response.send_message(f"Message sent to {user}.", ephemeral=True)
 
-
+startTime = datetime.now()
+#online
+@bot.tree.command(description="Sends how long the bot has been online", name="online", guild=GUILD_ID)
+async def online(interaction):
+    log_command("online", interaction)
+    delta = datetime.now() - startTime
+    total_seconds = int(delta.total_seconds())
+    months, remainder = divmod(total_seconds, 2592000)  # 30*24*60*60
+    days, remainder = divmod(remainder, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    parts = []
+    if months:
+        parts.append(f"{months} month{'s' if months != 1 else ''}")
+    if days:
+        parts.append(f"{days} day{'s' if days != 1 else ''}")
+    if hours:
+        parts.append(f"{hours} hour{'s' if hours != 1 else ''}")
+    if minutes:
+        parts.append(f"{minutes} minute{'s' if minutes != 1 else ''}")
+    if seconds or not parts:
+        parts.append(f"{seconds} second{'s' if seconds != 1 else ''}")
+    uptime_str = ", ".join(parts)
+    await interaction.response.send_message(f"I have been online for {uptime_str}.")
+    
 #tictactoe
 
 
