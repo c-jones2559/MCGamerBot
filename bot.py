@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True 
+intents.guilds = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
@@ -30,19 +32,19 @@ def log_command(command_name, ctx, arg=None):
 
 
 #ping
-@bot.command(help="Sends pong.", usage = "!ping")
+@bot.command(help="Sends pong.", usage="!ping")
 async def ping(ctx):
     log_command("ping", ctx)
     await ctx.send("pong!")
 
 #echo
-@bot.command(help="Sends back the message after the command.", usage = "!echo <message>")
+@bot.command(help="Sends back the message after the command.", usage="!echo <message>")
 async def echo(ctx, *, arg):
     log_command("echo", ctx, arg)
     await ctx.send(arg)
 
 #say
-@bot.command(help="Sends back the message after the command and deletes your message.", usage = "!say <message>")
+@bot.command(help="Sends back the message after the command and deletes your message.", usage="!say <message>")
 async def say(ctx, *, arg):
     log_command("say", ctx, arg)
     if ctx.guild is None:
@@ -52,19 +54,19 @@ async def say(ctx, *, arg):
     await ctx.send(arg)
 
 #upper
-@bot.command(help="Sends back the message after the command in upper case.", usage = "!upper <message>")
+@bot.command(help="Sends back the message after the command in upper case.", usage="!upper <message>")
 async def upper(ctx, *, arg):
     log_command("upper", ctx, arg)
     await ctx.send(arg.upper())
 
 #lower
-@bot.command(help="Sends back the message after the command in lower case.", usage = "!lower <message>")
+@bot.command(help="Sends back the message after the command in lower case.", usage="!lower <message>")
 async def lower(ctx, *, arg):
     log_command("lower", ctx, arg)
     await ctx.send(arg.lower())
 
 #title
-@bot.command(help="Sends back the message after the command in title case.", usage = "!title <message>")
+@bot.command(help="Sends back the message after the command in title case.", usage="!title <message>")
 async def title(ctx, *, arg):
     log_command("title", ctx, arg)
     newMessage = ""
@@ -74,13 +76,13 @@ async def title(ctx, *, arg):
     await ctx.send(newMessage)
 
 #site
-@bot.command(help="Sends a link to my cool site.", usage = "!site")
+@bot.command(help="Sends a link to my cool site.", usage="!site")
 async def site(ctx):
     log_command("site", ctx)
     await ctx.send("Doesn't exist yet sorry but it might one day!")
 
 #info
-@bot.command(help="Sends details about the bot.", usage = "!info")
+@bot.command(help="Sends details about the bot.", usage="!info")
 async def info(ctx):
     log_command("info", ctx)
     mention = f"<@432316900735713290>"
@@ -91,13 +93,13 @@ async def info(ctx):
     await ctx.send(embed=embed)
 
 #invite
-@bot.command(help="Sends a link for you to add the bot to your server.", usage = "!invite")
+@bot.command(help="Sends a link for you to add the bot to your server.", usage="!invite")
 async def invite(ctx):
     log_command("invite", ctx)
     await ctx.send("https://bit.ly/4mGvKZb")
 
 #roll
-@bot.command(help="Sends a random number from 1 to a given value.", usage = "!roll <number>")
+@bot.command(help="Sends a random number from 1 to a given value.", usage="!roll <number>")
 async def roll(ctx, arg: int):
     log_command("roll", ctx, arg)
     if arg < 1:
@@ -112,7 +114,7 @@ async def roll(ctx, arg: int):
             await ctx.send(f"{result}.")
 
 #rolle
-@bot.command(help="Sends a random number from 1 to a given value. (but embed :O)", usage = "!rolle <number>")
+@bot.command(help="Sends a random number from 1 to a given value. (but embed :O)", usage="!rolle <number>")
 async def rolle(ctx, arg: int):
     log_command("rolle", ctx, arg)
     embed = discord.Embed(title=f"Roll {arg}", colour=discord.Colour.blurple())
@@ -129,7 +131,7 @@ async def rolle(ctx, arg: int):
         await ctx.send(embed=embed)
 
 #quote
-@bot.command(help="Sends a random quote from Morgan Pritchard.", usage = "!quote")
+@bot.command(help="Sends a random quote from Morgan Pritchard.", usage="!quote")
 async def quote(ctx):
     log_command("quote", ctx)
     with open("quotes.txt", "r", encoding="utf-8") as file:
@@ -141,7 +143,7 @@ async def quote(ctx):
     await ctx.send(quote)
 
 #schedule
-@bot.command(help="Sends a message to a given channel at a given time.", usage = "!schedule <message> <minutes_from_now> <channel_id>")
+@bot.command(help="Sends a message to a given channel at a given time.", usage="!schedule <message> <minutes_from_now> <channel_id>")
 async def schedule(ctx, arg, minutes_from_now: int = 0, channel_id: int = 0):
     if channel_id == 0:
         channel_id = ctx.channel.id
@@ -160,14 +162,32 @@ async def schedule(ctx, arg, minutes_from_now: int = 0, channel_id: int = 0):
     print(f"{current_time} Sending scheduled message to channel ID {channel_id}.")
     await channel.send(arg)
 
-#DM
-@bot.command(help="Sends a message to someone for you.", usage = "!DM <user> <message>")
-async def DM(ctx, userID: int, arg):
-    log_command("DM", ctx, f"{userID} {arg}")
-    if userID == 1412830085429330142 :
+#dm
+async def findUser(ctx, *, username):
+    # Search for a member in the current guild by username (case-insensitive)
+    member = discord.utils.find(lambda m: m.name.lower() == username.lower(), ctx.guild.members)
+    if member:
+        return member.id
+    return None
+@bot.command(help="Sends a message to someone for you.", usage="!dm <userID/username> <message>")
+async def dm(ctx, userID, *, arg):
+    log_command("dm", ctx, f"{userID} {arg}")
+    
+    if not userID.isdigit():
+        if ctx.guild is None:
+            await ctx.send("Please provide a user ID when using this command in DMs.")
+            return
+        userID = await findUser(ctx, username=userID)
+        if userID is None:
+            await ctx.send("I couldn't find that user. Please make sure the username is correct. I can only search for usernames in this server.")
+            return
+        #print(f"Found user ID: {userID}")
+
+    if userID == 1412830085429330142:
         await ctx.send("I can't DM myself!")
         return
-    user = bot.get_user(userID)
+    
+    user = bot.get_user(userID) #check cache first to limit API calls
     if user is None:
         user = await bot.fetch_user(userID)
     if user is None:
@@ -178,7 +198,7 @@ async def DM(ctx, userID: int, arg):
 
 #help
 bot.remove_command("help")  #remove the default help so it can be replaced
-@bot.command(help="Shows this message.", usage = "!help")
+@bot.command(help="Shows this message.", usage="!help")
 async def help(ctx):
     log_command("help", ctx)
     embed = discord.Embed(title="Help", colour=discord.Colour.blurple())
@@ -195,7 +215,7 @@ async def help(ctx):
 #error
 @bot.event
 async def on_command_error(ctx, error):
-    log_command("error", ctx)
+    #log_command("error", ctx)
     print(f"                    Error: {error}")
     if isinstance(error, commands.CommandNotFound):
         await ctx.send("Command not found. Use !help to see available commands.")
