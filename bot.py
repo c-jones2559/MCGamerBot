@@ -141,19 +141,38 @@ async def quote(ctx):
     await ctx.send(quote)
 
 #schedule
-@bot.command(help="Sends a message to a given channel at a given time.", usage = "!schedule <message> <channel_id> <minutes_from_now>")
-async def schedule(ctx, arg, channel_id: int, minutes_from_now: int):
+@bot.command(help="Sends a message to a given channel at a given time.", usage = "!schedule <message> <minutes_from_now> <channel_id>")
+async def schedule(ctx, arg, minutes_from_now: int = 0, channel_id: int = 0):
+    if channel_id == 0:
+        channel_id = ctx.channel.id
+        print(channel_id)
     log_command("schedule", ctx, f"{arg} {channel_id} {minutes_from_now}")
     if minutes_from_now < 0:
         await ctx.send("Please provide a non-negative integer for minutes from now.")
         return
     channel = bot.get_channel(channel_id)
     if channel is None:
-        await ctx.send("Channel not found. Please provide a valid channel ID.")
+        await ctx.send("I couldn't find that channel. Please make sure I have access to it and that the ID is correct. (Schedule doesn't work in DMs.)")
         return
     await ctx.send(f"Message scheduled to be sent in {minutes_from_now} minute(s).")
     await discord.utils.sleep_until(datetime.now() + timedelta(minutes=minutes_from_now))
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"{current_time} Sending scheduled message to channel ID {channel_id}.")
     await channel.send(arg)
+
+#DM
+@bot.command(help="Sends a message to someone for you.", usage = "!DM <user> <message>")
+async def DM(ctx, userID: int, arg):
+    log_command("DM", ctx, f"{userID} {arg}")
+    if userID == 1412830085429330142 :
+        await ctx.send("I can't DM myself!")
+        return
+    user = await bot.fetch_user(userID)
+    if user is None:
+        await ctx.send("I couldn't find that user. Please make sure the ID is correct.")
+        return
+    await user.send(arg)
+    await ctx.send(f"Message sent to {user}.")
 
 #help
 bot.remove_command("help")  #remove the default help so it can be replaced
@@ -175,6 +194,7 @@ async def help(ctx):
 @bot.event
 async def on_command_error(ctx, error):
     log_command("error", ctx)
+    print(f"                    Error: {error}")
     if isinstance(error, commands.CommandNotFound):
         await ctx.send("Command not found. Use !help to see available commands.")
     elif isinstance(error, commands.MissingRequiredArgument):
@@ -183,7 +203,7 @@ async def on_command_error(ctx, error):
         await ctx.send("Invalid argument type. Please check the command usage.")
     else:
         await ctx.send("An error occurred while processing the command.")
-        print(f"Error: {error}")
+        
 
 #log dms
 @bot.event
