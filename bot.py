@@ -38,7 +38,7 @@ def log_command(command_name, interaction, arg=None):
     output = f"{current_time} {interaction.user} triggered {command_name} in {channel_name}{guild_name}{arg_name}."
     print(output)
     with open(".log", "a") as f:
-        f.write(f"{current_time} {interaction.user} triggered {command_name} in {channel_name}{guild_name}{arg_name}.\n")
+        f.write(f"{output}\n")
 
 
 @bot.tree.command(name="ping", description="Sends pong and latency.", guild=GUILD_ID)
@@ -203,9 +203,9 @@ async def findUser(interaction, *, username):
     if member:
         return member.id
     return None
-@bot.tree.command(description="Sends a message to someone for you.", name="dm", guild=GUILD_ID)
-async def dm(interaction, userid: str, *, arg: str):
-    log_command("dm", interaction, f"{userid} {arg}")
+@bot.tree.command(description="Sends a message to someone for you after searching for them by id or username.", name="dm", guild=GUILD_ID)
+async def dm(interaction, username: str, *, message: str):
+    log_command("dm", interaction, f"{userid} {message}")
     
     if not userid.isdigit():
         if interaction.guild is None:
@@ -228,8 +228,39 @@ async def dm(interaction, userid: str, *, arg: str):
     if user is None:
         await interaction.response.send_message("I couldn't find that user. Please make sure the ID is correct. I can't DM people who haven't shared a server with me or who have DMs off.", ephemeral=True)
         return
-    await user.send(arg)
+    await user.send(message)
     await interaction.response.send_message(f"Message sent to {user}.", ephemeral=True)
+    
+#dmuser
+class UserSelect(discord.ui.UserSelect):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(placeholder="Pick a user...", min_values=1, max_values=1)
+
+    async def callback(self, interaction: discord.Interaction):
+        self.disabled = True
+        await interaction.response.edit_message(view=self.view)
+        picked_user = self.values[0]
+        #await interaction.followup.send_message(f"You picked: {picked_user.mention}", ephemeral=True)
+        if picked_user.id == 1412830085429330142:
+            await interaction.followup.send("I can't DM myself!", ephemeral=True)
+            return
+       
+        await picked_user.send(self.message)
+        await interaction.followup.send(f"Message sent to {picked_user.mention}.", ephemeral=True)
+
+class MyView(discord.ui.View):
+    def __init__(self, message):
+        super().__init__()
+        self.add_item(UserSelect(message))
+
+@bot.tree.command(description="Sends a message to someone for you after picking them from a dropdown list.", name="dmuser", guild=GUILD_ID)
+async def dmuser(interaction, message: str):
+    log_command("dmuser", interaction, message)
+    if interaction.guild is None:
+        await interaction.response.send_message("This command can only be used in a server.", ephemeral=True)
+        return
+    await interaction.response.send_message("Select a user to DM:", view=MyView(message), ephemeral=True)
 
 startTime = datetime.now()
 #online
@@ -255,7 +286,8 @@ async def online(interaction):
         parts.append(f"{seconds} second{'s' if seconds != 1 else ''}")
     uptime_str = ", ".join(parts)
     await interaction.response.send_message(f"I have been online for {uptime_str}.")
-    
+
+
 #tictactoe
 
 
@@ -549,16 +581,16 @@ async def help(interaction):
     await interaction.response.send_message(embed=embed)
 
 #error
-@bot.event
-async def on_command_error(interaction, error):
+@bot.tree.error
+async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     #log_command("error", ctx)
     print(f"                    Error: {error}")
-    if isinstance(error, commands.CommandNotFound):
-        await interaction.response.send_message("Command not found. Use !help to see available commands.")
-    elif isinstance(error, commands.MissingRequiredArgument):
-        await interaction.response.send_message("Missing required argument. Please check the command usage.")
-    elif isinstance(error, commands.BadArgument):
-        await interaction.response.send_message("Invalid argument type. Please check the command usage.")
+    if isinstance(error, discord.InteractionResponded):
+        await interaction.response.send_message("This interaction has already been responded to.")
+    elif isinstance(error, app_commands.MissingPermissions):
+        await interaction.response.send_message("You don't have permission to use this command.")
+    elif isinstance(error, app_commands.BotMissingPermissions):
+        await interaction.response.send_message("I don't have permission to use this command.")
     else:
         await interaction.response.send_message("An error occurred while processing the command.")
 
@@ -570,7 +602,10 @@ async def on_message(message):
 
     if message.guild is None:
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(f"{current_time} DM from {message.author}: {message.content}")
+        output=f"{current_time} DM from {message.author}: {message.content}"
+        print(output)
+        with open(".log", "a") as f:
+            f.write(f"{output}\n")
     
     await bot.process_commands(message)
 
