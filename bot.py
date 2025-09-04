@@ -3,6 +3,7 @@ from discord.ext import commands
 import os
 from dotenv import load_dotenv
 import random
+from datetime import datetime
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -12,17 +13,19 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 #startup
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user}")
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"{current_time} Logged in as {bot.user}.")
     channel = bot.get_channel(1412831975147962472)
     await channel.send("Hey gamers!")
 
 #logging
 def log_command(command_name, ctx, arg=None):
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     guild_name = "DMs" if ctx.guild is None else ctx.guild.name
     channel_name = "" if ctx.guild is None else f"{ctx.channel.name} of "
     arg_name = "" if arg is None else f" with argument: {arg}"
 
-    print(f"{ctx.author} triggered {command_name} in {channel_name}{guild_name}{arg_name}.")
+    print(f"{current_time} {ctx.author} triggered {command_name} in {channel_name}{guild_name}{arg_name}.")
 
 #ping
 @bot.command(help="Sends pong.", usage = "!ping")
@@ -85,6 +88,12 @@ async def info(ctx):
     embed.add_field(name="Last updated", value="04/09/2025", inline=False)
     await ctx.send(embed=embed)
 
+#invite
+@bot.command(help="Sends a link for you to add the bot to your server.", usage = "!invite")
+async def invite(ctx):
+    log_command("invite", ctx)
+    await ctx.send("https://bit.ly/4mGvKZb")
+
 #roll
 @bot.command(help="Sends a random number from 1 — number.", usage = "!roll <number>")
 async def roll(ctx, arg: int):
@@ -96,9 +105,26 @@ async def roll(ctx, arg: int):
         if result == arg:
             await ctx.send(f"{result}! Nice!")
         elif result == 1:
-            await ctx.send(f"{result}. Unlucky!")
+            await ctx.send(f"{result}! Unlucky!")
         else:
             await ctx.send(f"{result}.")
+
+#rolle
+@bot.command(help="Sends a random number from 1 — number. (but embed :O)", usage = "!rolle <number>")
+async def rolle(ctx, arg: int):
+    log_command("rolle", ctx, arg)
+    embed = discord.Embed(title=f"Roll {arg}", colour=discord.Colour.blurple())
+    if arg < 1:
+        await ctx.send("Please provide an integer greater than 0.")
+    else:
+        result = random.randint(1, arg)
+        if result == arg:
+            embed.description = f"{result}! Nice!"
+        elif result == 1:
+            embed.description = f"{result}! Unlucky!"
+        else:
+            embed.description = f"{result}!"
+        await ctx.send(embed=embed)
 
 #quote
 @bot.command(help="Sends a random quote from Morgan Pritchard.", usage = "!quote")
