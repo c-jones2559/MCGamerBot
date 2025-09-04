@@ -27,6 +27,8 @@ def log_command(command_name, ctx, arg=None):
 
     print(f"{current_time} {ctx.author} triggered {command_name} in {channel_name}{guild_name}{arg_name}.")
 
+
+
 #ping
 @bot.command(help="Sends pong.", usage = "!ping")
 async def ping(ctx):
@@ -182,6 +184,18 @@ async def on_command_error(ctx, error):
     else:
         await ctx.send("An error occurred while processing the command.")
         print(f"Error: {error}")
+
+#log dms
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    if message.guild is None:
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"{current_time} DM from {message.author}: {message.content}")
+    
+    await bot.process_commands(message)
 
 #token and run
 load_dotenv()
