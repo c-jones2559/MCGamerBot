@@ -18,6 +18,11 @@ def log_command(command_name, ctx):
     guild_name = "DMs" if ctx.guild is None else ctx.guild.name
     print(f"{ctx.author} triggered {command_name} in {guild_name}.")
 
+@bot.command(help="Responds with pong")
+async def ping(ctx):
+    log_command("ping", ctx)
+    await ctx.send("pong!")
+
 @bot.command(help="Echos back the message after the command")
 async def echo(ctx, *, arg):
     log_command("echo", ctx)
@@ -66,7 +71,14 @@ async def help(ctx):
         embed.add_field(name=f"!{cmd.name}", value=cmd.help or "No description", inline=False)
     await ctx.send(embed=embed)
 
-
+@bot.event
+async def on_command_error(ctx, error):
+    log_command("error", ctx)
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send("Command not found. Use !help to see available commands.")
+    else:
+        await ctx.send("An error occurred while processing the command.")
+        print(f"Error: {error}")
 
 # Load token and run
 load_dotenv()
