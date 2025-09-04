@@ -286,12 +286,24 @@ class TicTacToeButton(discord.ui.Button):
         for item in self.view.children:
             item.disabled = True
         self.board.board[self.row_index * 3 + self.col_index] = "X" 
-        await interaction.response.edit_message(content=f"{self.board.return_board()}\nYou played X", view=self.view)
+        
         if self.board.checkWin() == 1:
-            await interaction.followup.send("You win! GG!")
+            await interaction.response.edit_message(content=f"{self.board.return_board()}\nYou played X", view=self.view)
+            await interaction.followup.send("You win! GG!\nNow try a harder difficulty!")
+
             return
 
-        playEasy(self.board)
+        if self.board.difficulty == "Easy":
+            playEasy(self.board)
+        elif self.board.difficulty == "Medium":
+            playMedium(self.board)
+        elif self.board.difficulty == "Hard":
+            pass #not implemented yet
+        elif self.board.difficulty == "Human":
+            pass
+            #await interaction.followup.send("Your opponent's turn. Please wait for them to click a button.")
+            #return
+        await interaction.response.edit_message(content=f"{self.board.return_board()}\nYou played X\nI played O", view=self.view)
         if self.board.checkWin() == 2:
             await interaction.followup.send("I win! GG!")
             return
@@ -312,8 +324,38 @@ class TicTacToeView(discord.ui.View):
 def playEasy(board: Board):
     for i in range(9):
         if board.board[i] == ".":
-            board.board[i] = "O"
+            break
+        elif i == 8: #full board
             return
+    while board.board[i] != ".":
+        i = random.randint(0, 8)
+    board.board[i] = "O"
+    return
+        
+def playMedium(board: Board):
+    #check if can win
+    for i in range(9):
+        if board.board[i] == ".":
+            board.board[i] = "O"
+            if board.checkWin() == 2:
+                return
+            board.board[i] = "."
+    #check if player can win next turn, block them
+    for i in range(9):
+        if board.board[i] == ".":
+            board.board[i] = "X"
+            if board.checkWin() == 1:
+                board.board[i] = "O"
+                return
+            board.board[i] = "."
+    #otherwise play easy
+    playEasy(board)
+
+def playHard(board: Board):
+    for i in range(9):
+        if board.board[i] == ".":
+            board.board[i] = "O"
+    return
 
 async def playGame(interaction, board: Board): #0=easy, 1=medium, 2=hard, 3=human
     view = TicTacToeView(board)
@@ -337,7 +379,10 @@ class Dropdown(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         #await interaction.response.send_message(f"You picked: {self.values[0]}", ephemeral=True)
-
+        
+        if self.values[0] == "Human":
+            await interaction.response.send_message("This feature is coming soon!")
+            return
         await playGame(interaction, Board(self.values[0]))
         #await interaction.followup.send("This feature is coming soon!")
 
