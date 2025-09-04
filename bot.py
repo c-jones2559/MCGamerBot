@@ -206,8 +206,8 @@ async def findUser(interaction, *, username):
     return None
 @bot.tree.command(description="Sends a message to someone for you after searching for them by id or username.", name="dm")
 async def dm(interaction, username: str, *, message: str):
-    log_command("dm", interaction, f"{userid} {message}")
-    
+    log_command("dm", interaction, f"{username} {message}")
+    userid=username
     if not userid.isdigit():
         if interaction.guild is None:
             await interaction.response.send_message("Please provide a user ID when using this command in DMs.", ephemeral=True)
