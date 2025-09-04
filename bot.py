@@ -106,6 +106,23 @@ async def invite(interaction):
     await interaction.response.send_message("https://bit.ly/4mGvKZb")
 
 #roll
+class RollView(discord.ui.View):
+    def __init__(self, max: int):
+        super().__init__()
+        self.max = max
+    
+    @discord.ui.button(label="Roll Again", style=discord.ButtonStyle.primary)
+    async def roll_again(self, interaction: discord.Interaction, button: discord.ui.Button):
+        max=self.max
+        log_command("roll", interaction, max)
+        result = random.randint(1, max)
+        if result == max:
+            await interaction.response.send_message(f"{result}! Nice!")
+        elif result == 1:
+            await interaction.response.send_message(f"{result}! Unlucky!")
+        else:
+            await interaction.response.send_message(f"{result}!")
+
 @bot.tree.command(description="Sends a random number from 1 to a given value.", name="roll", guild=GUILD_ID)
 async def roll(interaction, max: int):
     log_command("roll", interaction, max)
@@ -114,11 +131,12 @@ async def roll(interaction, max: int):
     else:
         result = random.randint(1, max)
         if result == max:
-            await interaction.response.send_message(f"{result}! Nice!")
+            await interaction.response.send_message(f"{result}! Nice!", view=RollView(max))
         elif result == 1:
-            await interaction.response.send_message(f"{result}! Unlucky!")
+            await interaction.response.send_message(f"{result}! Unlucky!", view=RollView(max))
         else:
-            await interaction.response.send_message(f"{result}!")
+            await interaction.response.send_message(f"{result}!", view=RollView(max))
+    
 
 #rolle
 @bot.tree.command(description="Sends a random number from 1 to a given value. (but embed :O)", name="rolle", guild=GUILD_ID)
