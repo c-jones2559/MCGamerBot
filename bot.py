@@ -263,7 +263,58 @@ class Board:
             if self.board[4] == "X":
                 return 1
             return 2
-        return 0
+        for i in range(9):
+            if self.board[i] == ".":
+                return 0
+        return -1  # Draw
+    
+    def updateWin(self):
+        for row in range(3):
+            if self.board[row*3] == self.board[row*3 + 1] == self.board[row*3 + 2] != ".":
+                if self.board[row*3] == "X":
+                    self.board[row*3] = "~~X~~"
+                    self.board[row*3+1] = "~~X~~"
+                    self.board[row*3+2] = "~~X~~"
+                    return
+                elif self.board[row*3] == "O":
+                    self.board[row*3] = "~~O~~"
+                    self.board[row*3+1] = "~~O~~"
+                    self.board[row*3+2] = "~~O~~"
+                    return
+        for col in range(3):
+            if self.board[col] == self.board[col + 3] == self.board[col + 6] != ".":
+                if self.board[col] == "X":
+                    self.board[col] = "~~X~~"
+                    self.board[col+3] = "~~X~~"
+                    self.board[col+6] = "~~X~~"
+                    return
+                elif self.board[col] == "O":
+                    self.board[col] = "~~O~~"
+                    self.board[col+3] = "~~O~~"
+                    self.board[col+6] = "~~O~~"
+                    return
+        if self.board[0] == self.board[4] == self.board[8] != ".":
+            if self.board[4] == "X":
+                self.board[0] = "~~X~~"
+                self.board[4] = "~~X~~"
+                self.board[8] = "~~X~~"
+                return
+            elif self.board[4] == "O":
+                self.board[0] = "~~O~~"
+                self.board[4] = "~~O~~"
+                self.board[8] = "~~O~~"
+                return
+        if self.board[2] == self.board[4] == self.board[6] != ".":
+            if self.board[4] == "X":
+                self.board[2] = "~~X~~"
+                self.board[4] = "~~X~~"
+                self.board[6] = "~~X~~"
+                return
+            elif self.board[4] == "O":
+                self.board[2] = "~~O~~"
+                self.board[4] = "~~O~~"
+                self.board[6] = "~~O~~"
+                return
     
     def getValue(self, int):
         return self.board[int]
@@ -288,9 +339,13 @@ class TicTacToeButton(discord.ui.Button):
         self.board.board[self.row_index * 3 + self.col_index] = "X" 
         
         if self.board.checkWin() == 1:
+            self.board.updateWin()
             await interaction.response.edit_message(content=f"{self.board.return_board()}\nYou played X", view=self.view)
             await interaction.followup.send("You win! GG!\nNow try a harder difficulty!")
-
+            return
+        elif self.board.checkWin() == -1:
+            await interaction.response.edit_message(content=f"{self.board.return_board()}\nYou played X", view=self.view)
+            await interaction.followup.send("It's a draw! GG!")
             return
 
         if self.board.difficulty == "Easy":
@@ -298,11 +353,13 @@ class TicTacToeButton(discord.ui.Button):
         elif self.board.difficulty == "Medium":
             playMedium(self.board)
         elif self.board.difficulty == "Hard":
-            pass #not implemented yet
+            playHard(self.board)
         elif self.board.difficulty == "Human":
             pass
             #await interaction.followup.send("Your opponent's turn. Please wait for them to click a button.")
             #return
+        if self.board.checkWin() == 2:
+            self.board.updateWin()
         await interaction.response.edit_message(content=f"{self.board.return_board()}\nYou played X\nI played O", view=self.view)
         if self.board.checkWin() == 2:
             await interaction.followup.send("I win! GG!")
@@ -327,6 +384,7 @@ def playEasy(board: Board):
             break
         elif i == 8: #full board
             return
+    i = random.randint(0, 8)
     while board.board[i] != ".":
         i = random.randint(0, 8)
     board.board[i] = "O"
