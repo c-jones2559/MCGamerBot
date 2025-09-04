@@ -21,6 +21,7 @@ async def on_ready():
     print(f"{current_time} Logged in as {bot.user}.")
     try:
         synced = await bot.tree.sync(guild=GUILD_ID)
+        synced = await bot.tree.sync()
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"{current_time} Synced {len(synced)} slash commands.")
     except Exception as e:
@@ -41,7 +42,7 @@ def log_command(command_name, interaction, arg=None):
         f.write(f"{output}\n")
 
 
-@bot.tree.command(name="ping", description="Sends pong and latency.", guild=GUILD_ID)
+@bot.tree.command(name="ping", description="Sends pong and latency.")
 async def ping(interaction: discord.Interaction):
     log_command("ping", interaction)
     before = datetime.now()
@@ -51,13 +52,13 @@ async def ping(interaction: discord.Interaction):
     await interaction.followup.send(f"Pong! `{latency:.2f}ms`")
 
 #echo
-@bot.tree.command(name = "echo", description="Sends back the message after the command.", guild=GUILD_ID)
+@bot.tree.command(name="echo", description="Sends back the message after the command.")
 async def echo(interaction, *, message: str):
     log_command("echo", interaction, message)
     await interaction.response.send_message(message)
 
 #say
-@bot.tree.command(description="Sends back the message after the command and deletes your message.", name="say", guild=GUILD_ID)
+@bot.tree.command(description="Sends back the message after the command and deletes your message.", name="say")
 async def say(interaction, *, message: str):
     log_command("say", interaction, message)
     if interaction.guild is None:
@@ -68,19 +69,19 @@ async def say(interaction, *, message: str):
     
 
 #upper
-@bot.tree.command(description="Sends back the message after the command in upper case.", name="upper", guild=GUILD_ID)
+@bot.tree.command(description="Sends back the message after the command in upper case.", name="upper")
 async def upper(interaction, *, message: str):
     log_command("upper", interaction, message)
     await interaction.response.send_message(message.upper())
 
 #lower
-@bot.tree.command(description="Sends back the message after the command in lower case.", name="lower", guild=GUILD_ID)
+@bot.tree.command(description="Sends back the message after the command in lower case.", name="lower")
 async def lower(interaction, *, message: str):
     log_command("lower", interaction, message)
     await interaction.response.send_message(message.lower())
 
 #title
-@bot.tree.command(description="Sends back the message after the command in title case.", name="title", guild=GUILD_ID)
+@bot.tree.command(description="Sends back the message after the command in title case.", name="title")
 async def title(interaction, *, message: str):
     log_command("title", interaction, message)
     newMessage = ""
@@ -90,13 +91,13 @@ async def title(interaction, *, message: str):
     await interaction.response.send_message(newMessage)
 
 #site
-@bot.tree.command(description="Sends a link to my cool site.", name="site", guild=GUILD_ID)
+@bot.tree.command(description="Sends a link to my cool site.", name="site")
 async def site(interaction):
     log_command("site", interaction)
     await interaction.response.send_message("Doesn't exist yet sorry but it might one day!")
 
 #info
-@bot.tree.command(description="Sends details about the bot.", name="info", guild=GUILD_ID)
+@bot.tree.command(description="Sends details about the bot.", name="info")
 async def info(interaction):
     log_command("info", interaction)
     mention = f"<@432316900735713290>"
@@ -107,7 +108,7 @@ async def info(interaction):
     await interaction.response.send_message(embed=embed)
 
 #invite
-@bot.tree.command(description="Sends a link for you to add the bot to your server.", name="invite", guild=GUILD_ID)
+@bot.tree.command(description="Sends a link for you to add the bot to your server.", name="invite")
 async def invite(interaction):
     log_command("invite", interaction)
     await interaction.response.send_message("https://bit.ly/4mGvKZb")
@@ -130,7 +131,7 @@ class RollView(discord.ui.View):
         else:
             await interaction.response.send_message(f"{result}!")
 
-@bot.tree.command(description="Sends a random number from 1 to a given value.", name="roll", guild=GUILD_ID)
+@bot.tree.command(description="Sends a random number from 1 to a given value.", name="roll")
 async def roll(interaction, max: int):
     log_command("roll", interaction, max)
     if max < 1:
@@ -146,7 +147,7 @@ async def roll(interaction, max: int):
     
 
 #rolle
-@bot.tree.command(description="Sends a random number from 1 to a given value. (but embed :O)", name="rolle", guild=GUILD_ID)
+@bot.tree.command(description="Sends a random number from 1 to a given value. (but embed :O)", name="rolle")
 async def rolle(interaction, arg: int):
     log_command("rolle", interaction, arg)
     embed = discord.Embed(title=f"Roll {arg}", colour=discord.Colour.blurple())
@@ -164,7 +165,7 @@ async def rolle(interaction, arg: int):
     component = discord.components.Button(label="Roll Again", style=discord.ButtonStyle.primary)
 
 #quote
-@bot.tree.command(description="Sends a random quote from Morgan Pritchard.", name="quote", guild=GUILD_ID)
+@bot.tree.command(description="Sends a random quote from Morgan Pritchard.", name="quote")
 async def quote(interaction):
     log_command("quote", interaction)
     with open("quotes.txt", "r", encoding="utf-8") as file:
@@ -176,7 +177,7 @@ async def quote(interaction):
     await interaction.response.send_message(quote)
 
 #schedule
-@bot.tree.command(description="Sends a message to a given channel at a given time.", name="schedule", guild=GUILD_ID)
+@bot.tree.command(description="Sends a message to a given channel at a given time.", name="schedule")
 async def schedule(interaction, message: str, minutes_from_now: int = 0, channel_id: str = "0"):
     channel_id = int(channel_id)
     if channel_id == 0:
@@ -203,7 +204,7 @@ async def findUser(interaction, *, username):
     if member:
         return member.id
     return None
-@bot.tree.command(description="Sends a message to someone for you after searching for them by id or username.", name="dm", guild=GUILD_ID)
+@bot.tree.command(description="Sends a message to someone for you after searching for them by id or username.", name="dm")
 async def dm(interaction, username: str, *, message: str):
     log_command("dm", interaction, f"{userid} {message}")
     
@@ -254,7 +255,7 @@ class MyView(discord.ui.View):
         super().__init__()
         self.add_item(UserSelect(message))
 
-@bot.tree.command(description="Sends a message to someone for you after picking them from a dropdown list.", name="dmuser", guild=GUILD_ID)
+@bot.tree.command(description="Sends a message to someone for you after picking them from a dropdown list.", name="dmuser")
 async def dmuser(interaction, message: str):
     log_command("dmuser", interaction, message)
     if interaction.guild is None:
@@ -264,7 +265,7 @@ async def dmuser(interaction, message: str):
 
 startTime = datetime.now()
 #online
-@bot.tree.command(description="Sends how long the bot has been online", name="online", guild=GUILD_ID)
+@bot.tree.command(description="Sends how long the bot has been online", name="online")
 async def online(interaction):
     log_command("online", interaction)
     delta = datetime.now() - startTime
@@ -559,14 +560,14 @@ class DropdownView(discord.ui.View):
         super().__init__()
         self.add_item(Dropdown())
 
-@bot.tree.command(description="Play a game of tic tac toe with another user, or against a bot.", name="tictactoe", guild=GUILD_ID)
+@bot.tree.command(description="Play a game of tic tac toe with another user, or against a bot.", name="tictactoe")
 async def tictactoe(interaction):
     log_command("tictactoe", interaction)
     await interaction.response.send_message("Choose an option:", view=DropdownView())
 
 #help
 bot.remove_command("help")  #remove the default help so it can be replaced
-@bot.tree.command(description="Sends a help message.", name="help", guild=GUILD_ID)
+@bot.tree.command(description="Sends a help message.", name="help")
 async def help(interaction):
     log_command("help", interaction)
     embed = discord.Embed(title="Help", colour=discord.Colour.blurple())
