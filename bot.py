@@ -547,6 +547,7 @@ class Dropdown(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         self.disabled = True
+        await interaction.response.edit_message(view=self.view)
         #await interaction.response.send_message(f"You picked: {self.values[0]}", ephemeral=True)
         
         if self.values[0] == "Human":
