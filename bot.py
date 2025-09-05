@@ -38,7 +38,7 @@ def log_command(command_name, interaction, arg=None):
 
     output = f"{current_time} {interaction.user} triggered {command_name} in {channel_name}{guild_name}{arg_name}."
     print(output)
-    with open(".log", "a") as f:
+    with open("/app/data/bot.log", "a", buffering=1) as f:
         f.write(f"{output}\n")
 
 
