@@ -605,8 +605,11 @@ async def on_message(message):
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         output=f"{current_time} DM from {message.author}: {message.content}"
         print(output)
-        with open(".log", "a") as f:
+        with open("/app/data/bot.log", "a", buffering=1) as f:
             f.write(f"{output}\n")
+        channel = bot.get_channel(1412955886623916172)
+        await channel.send(f"DM from {message.author.mention} ({message.author.id}):\n{message.content}")
+        
     
     await bot.process_commands(message)
 
