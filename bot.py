@@ -546,6 +546,7 @@ class Dropdown(discord.ui.Select):
         super().__init__(placeholder="Pick your opponent.", options=options, min_values=1, max_values=1)
 
     async def callback(self, interaction: discord.Interaction):
+        self.disabled = True
         #await interaction.response.send_message(f"You picked: {self.values[0]}", ephemeral=True)
         
         if self.values[0] == "Human":
