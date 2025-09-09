@@ -574,7 +574,7 @@ async def help(interaction):
     log_command("help", interaction)
     embed = discord.Embed(title="Help", colour=discord.Colour.blurple())
 
-    commandsSorted = sorted(bot.tree.get_commands(guild=GUILD_ID), key=lambda c: c.name)  #sort commands alphabetically
+    commandsSorted = sorted(bot.tree.get_commands(), key=lambda c: c.name)  #sort commands alphabetically
     for cmd in commandsSorted:
         if cmd.name == "help":
             pass #help goes at the end of help
