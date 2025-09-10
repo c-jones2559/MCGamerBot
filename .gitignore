@@ -1,6 +1,7 @@
 .env
 test.py
 .log
+bot.log
 botLegacy.py
 todo.txt
 subscriptions.txt
