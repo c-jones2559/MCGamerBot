@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord.ext import tasks
 from discord import app_commands
 import os
 from dotenv import load_dotenv
@@ -566,6 +567,59 @@ class DropdownView(discord.ui.View):
 async def tictactoe(interaction):
     log_command("tictactoe", interaction)
     await interaction.response.send_message("Choose an option:", view=DropdownView())
+
+#subscriptions
+@tasks.loop(time=datetime.time(hour=12, minute=25, tzinfo=datetime.timezone.utc))
+async def sendSubscriptions():
+    with open("subscriptions.txt", "r", encoding="utf-8") as f:
+        contents = f.read()
+    
+    userIDs = contents.split("\n")
+    index = userIDs.index(0)
+    userIDs = userIDs[1:]
+    with open("quotes.txt", "r", encoding="utf-8") as f:
+        quotes = f.readlines()
+        quote = quotes[index % len(quotes)].strip()
+    index += 1
+    with open("subscriptions.txt", "w", buffering=1) as f:
+        contents = str(index) + contents[1:]
+
+    for userID in userIDs:
+        if userID == "":
+            continue
+        userID = int(userID)
+        user = bot.get_user(userID) #check cache first to limit API calls
+        if user is None:
+            user = await bot.fetch_user(userID)
+        if user is None:
+            continue
+        await user.send(f"Quote of the day #{index}:\n{quote}")
+        
+
+#subscribe
+@bot.tree.command(description="Subscribe to daily messages.", name="subscribe")
+async def subscribe(interaction):
+    log_command("subscribe", interaction)
+    with open("subscriptions.txt", "r", encoding="utf-8") as f:
+        contents = f.read()
+    if str(interaction.user.id) in contents:
+        await interaction.response.send_message("You are already subscribed.")
+        return
+    with open("subscriptions.txt", "a", buffering=1) as f:
+        f.write(f"{interaction.user.id}\n")
+    await interaction.response.send_message("You have subscribed to daily Morgan Pritchard quotes!\nQuotes are delivered in DMs at 12pm UTC.\nUse /unsubscribe to stop receiving them.")
+
+#unsubscribe
+@bot.tree.command(description="Unsubscribe from daily messages.", name="unsubscribe")
+async def unsubscribe(interaction):
+    log_command("unsubscribe", interaction)
+    with open("subscriptions.txt", "r", encoding="utf-8") as f:
+        contents = f.read()
+    if str(interaction.user.id) in contents:
+        contents = contents.replace(f"{interaction.user.id}\n", "")
+        with open("subscriptions.txt", "w", buffering=1) as f:
+            f.write(contents)
+    await interaction.response.send_message("You have unsubscribed from daily Morgan Pritchard quotes.\nUse /subscribe to subscribe again.")
 
 #help
 bot.remove_command("help")  #remove the default help so it can be replaced
