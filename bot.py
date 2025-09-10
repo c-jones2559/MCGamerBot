@@ -561,7 +561,7 @@ async def tictactoe(interaction):
     await interaction.response.send_message("Choose an option:", view=DropdownView())
 
 #subscriptions
-@tasks.loop(time=datetime.time(hour=1, minute=41, tzinfo=timezone.utc))  # Adjust the time as needed (UTC)
+@tasks.loop(time=time(hour=1, minute=41, tzinfo=timezone.utc))  # Adjust the time as needed (UTC)
 async def sendSubscriptions():
     with open("subscriptions.txt", "r", encoding="utf-8") as f:
         contents = f.read()
