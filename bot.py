@@ -382,7 +382,6 @@ class Board:
         return self.board[int]
         
 
-
 class TicTacToeButton(discord.ui.Button):
     def __init__(self, row: int, col: int, board: Board):
         super().__init__(style=discord.ButtonStyle.secondary, label=str(row*3+col+1), row=row, disabled=False if board.board[row*3+col] == "." else True)
@@ -431,9 +430,6 @@ class TicTacToeButton(discord.ui.Button):
         await playGame(interaction, self.board)
 
 
-
-
-
 class TicTacToeView(discord.ui.View):
     def __init__(self, board: Board):
         super().__init__(timeout=None)
@@ -452,8 +448,7 @@ def playNoob(board: Board):
     while board.board[i] != ".":
         i = random.randint(0, 8)
     board.board[i] = "O"
-    return
-        
+    return     
 def playPro(board: Board):
     #check if can win
     for i in range(9):
@@ -472,7 +467,6 @@ def playPro(board: Board):
             board.board[i] = "."
     #otherwise play Noob
     playNoob(board)
-
 def playHacker(board: Board):
     empty = 0
     for i in range(9):
@@ -518,7 +512,6 @@ def playHacker(board: Board):
     else:
         playPro(board)
     return
-
 def playGod(board: Board):
     for i in range(9):
         if board.board[i] == ".":
@@ -557,7 +550,6 @@ class Dropdown(discord.ui.Select):
         await playGame(interaction, Board(self.values[0]))
         #await interaction.followup.send("This feature is coming soon!")
 
-
 class DropdownView(discord.ui.View):
     def __init__(self):
         super().__init__()
@@ -569,7 +561,7 @@ async def tictactoe(interaction):
     await interaction.response.send_message("Choose an option:", view=DropdownView())
 
 #subscriptions
-@tasks.loop(time=datetime.time(hour=1, minute=32, tzinfo=datetime.timezone.utc))
+@tasks.loop(time=datetime.time(hour=1, minute=39, tzinfo=datetime.astimezone.utc))
 async def sendSubscriptions():
     with open("subscriptions.txt", "r", encoding="utf-8") as f:
         contents = f.read()
