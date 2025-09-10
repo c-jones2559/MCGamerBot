@@ -27,6 +27,8 @@ async def on_ready():
         print(f"{current_time} Synced {len(synced)} slash commands.")
     except Exception as e:
         print(f"Failed to sync commands: {e}")
+    #start daily subscriptions
+    sendSubscriptions.start()
     channel = bot.get_channel(1412831975147962472)
     await channel.send("Hey gamers!")
 
@@ -663,8 +665,7 @@ async def on_message(message):
     
     await bot.process_commands(message)
 
-#start daily subscriptions
-sendSubscriptions.start()
+
 
 #token and run
 load_dotenv()
