@@ -563,13 +563,13 @@ async def tictactoe(interaction):
     await interaction.response.send_message("Choose an option:", view=DropdownView())
 
 #subscriptions
-@tasks.loop(time=time(hour=0, minute=48, tzinfo=timezone.utc))  # Adjust the time as needed (UTC)
+@tasks.loop(time=time(hour=12, tzinfo=timezone.utc))  # Adjust the time as needed (UTC)
 async def sendSubscriptions():
     with open("subscriptions.txt", "r", encoding="utf-8") as f:
         contents = f.read()
     
     userIDs = contents.split("\n")
-    index = userIDs.index(0)
+    index = int(userIDs[0])
     userIDs = userIDs[1:]
     with open("quotes.txt", "r", encoding="utf-8") as f:
         quotes = f.readlines()
