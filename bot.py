@@ -625,7 +625,7 @@ async def unsubscribe(interaction):
 #broadcast
 @bot.tree.command(description="Send a message out to all subscribers.", name="broadcast")
 async def broadcast(interaction, message: str):
-    log_command("broadcast", interaction)
+    log_command("broadcast", interaction, message)
     if interaction.user.id != 432316900735713290:
         await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
         return
