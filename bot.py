@@ -623,7 +623,7 @@ async def unsubscribe(interaction):
     await interaction.response.send_message("You have unsubscribed from daily Morgan Pritchard quotes.\nUse /subscribe to subscribe again.")
 
 #broadcast
-@bot.tree.command(description="Send a message out to all subscribers.", name="broadcast")
+@bot.tree.command(description="Send a message out to all subscribers.", name="broadcast", guild=GUILD_ID)
 async def broadcast(interaction, message: str):
     log_command("broadcast", interaction, message)
     if interaction.user.id != 432316900735713290:
