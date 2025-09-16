@@ -647,6 +647,38 @@ async def broadcast(interaction, message: str):
         await user.send(message)
     await interaction.response.send_message("Message sent to all subscribers.", ephemeral=True)
 
+#forceSubscriptions
+@bot.tree.command(description="Force send the daily message to all subscribers.", name="forceSubscriptions")
+async def forceSubscriptions(interaction):
+    log_command("forceSubscriptions", None)
+    if interaction.user.id != 432316900735713290:
+        await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
+        return
+    with open("/app/data/subscriptions.txt", "r", encoding="utf-8") as f:
+        contents = f.read()
+    
+    userIDs = contents.split("\n")
+    index = int(userIDs[0])
+    userIDs = userIDs[1:]
+    with open("quotes.txt", "r", encoding="utf-8") as f:
+        quotes = f.readlines()
+        quote = quotes[index % len(quotes)].strip()
+    index += 1
+    with open("/app/data/subscriptions.txt", "w", buffering=1) as f:
+        contents = str(index) + contents[1:]
+        f.write(contents)
+
+    for userID in userIDs:
+        if userID == "":
+            continue
+        userID = int(userID)
+        user = bot.get_user(userID) #check cache first to limit API calls
+        if user is None:
+            user = await bot.fetch_user(userID)
+        if user is None:
+            continue
+        await user.send(f"Quote of the day #{index}:\n{quote}")
+
 #help
 bot.remove_command("help")  #remove the default help so it can be replaced
 @bot.tree.command(description="Sends a help message.", name="help")
