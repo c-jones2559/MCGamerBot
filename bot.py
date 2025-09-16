@@ -51,14 +51,18 @@ def log_command(command_name, interaction, arg=None):
         f.write(f"{output}\n")
 
 
-@bot.tree.command(name="ping", description="Sends pong and latency.")
+@bot.tree.command(name="ping", description="Sends pong and latency.", guild = GUILD_ID)
 async def ping(interaction: discord.Interaction):
     log_command("ping", interaction)
+
     before = datetime.now()
-    await interaction.response.defer(thinking=True)
-    after = datetime.now()
-    latency = (after - before).total_seconds() * 1000  # ms
-    await interaction.followup.send(f"Pong! `{latency:.2f}ms`")
+    # Send the message and grab the actual Message object
+    message = await interaction.response.send_message("Pong!")
+
+    # Discord stores message.created_at as an aware datetime in UTC
+    latency = (message.created_at - before).total_seconds() * 1000
+
+    await interaction.response.edit_message(content=f"Pong! `{latency:.2f}ms`")
 
 #echo
 @bot.tree.command(name="echo", description="Sends back the message after the command.")
