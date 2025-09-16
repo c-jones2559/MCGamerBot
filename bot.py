@@ -648,7 +648,7 @@ async def broadcast(interaction, message: str):
     await interaction.response.send_message("Message sent to all subscribers.", ephemeral=True)
 
 #forceSubscriptions
-@bot.tree.command(description="Force send the daily message to all subscribers.", name="force_subscriptions", guild=GUILD_ID)
+@bot.tree.command(description="Force send the daily message to all subscribers.", name="force_subscriptions")
 async def forceSubscriptions(interaction):
     log_command("forceSubscriptions", interaction)
     if interaction.user.id != 432316900735713290:
@@ -678,6 +678,7 @@ async def forceSubscriptions(interaction):
         if user is None:
             continue
         await user.send(f"Quote of the day #{index}:\n{quote}")
+    await interaction.response.send_message("Message sent to all subscribers.", ephemeral=True)
 
 #help
 bot.remove_command("help")  #remove the default help so it can be replaced
