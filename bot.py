@@ -680,6 +680,20 @@ async def forceSubscriptions(interaction):
         await user.send(f"Quote of the day #{index}:\n{quote}")
     await interaction.response.send_message("Message sent to all subscribers.", ephemeral=True)
 
+#view logs
+@bot.tree.command(description="View the bot logs.", name="view_logs")
+async def view_logs(interaction):
+    log_command("view_logs", interaction)
+    if interaction.user.id != 432316900735713290:
+        await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
+        return
+    with open("/app/data/bot.log", "r", encoding="utf-8") as f:
+        contents = f.read()
+    if len(contents) > 1900:
+        contents = contents[-1900:]  # Get the last 1900 characters to fit in a message
+        contents = "...\n" + contents  # Indicate that the log was truncated
+    await interaction.response.send_message(f"```\n{contents}\n```")
+
 #help
 bot.remove_command("help")  #remove the default help so it can be replaced
 @bot.tree.command(description="Sends a help message.", name="help")
