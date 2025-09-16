@@ -648,7 +648,7 @@ async def broadcast(interaction, message: str):
     await interaction.response.send_message("Message sent to all subscribers.", ephemeral=True)
 
 #forceSubscriptions
-@bot.tree.command(description="Force send the daily message to all subscribers.", name="forceSubscriptions")
+@bot.tree.command(description="Force send the daily message to all subscribers.", name="forceSubscriptions", guild=GUILD_ID)
 async def forceSubscriptions(interaction):
     log_command("forceSubscriptions", None)
     if interaction.user.id != 432316900735713290:
