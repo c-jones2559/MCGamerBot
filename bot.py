@@ -124,7 +124,7 @@ async def info(interaction):
 @bot.tree.command(description="Sends a link for you to add the bot to your server.", name="invite")
 async def invite(interaction):
     log_command("invite", interaction)
-    await interaction.response.send_message("https://bit.ly/4mGvKZb")
+    await interaction.response.send_message("https://bot.cjones.cymru")
 
 #roll
 class RollView(discord.ui.View):
