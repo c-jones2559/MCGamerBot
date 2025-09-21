@@ -587,7 +587,7 @@ async def sendSubscriptions():
         quote = quotes[index % len(quotes)].strip()
     index += 1
     with open("/app/data/subscriptions.txt", "w", buffering=1) as f:
-        contents = str(index) + contents[1:]
+        contents = str(index) + "\n" + "\n".join(userIDs) + "\n"
         f.write(contents)
 
     for userID in userIDs:
@@ -669,7 +669,7 @@ async def forceSubscriptions(interaction):
         quote = quotes[index % len(quotes)].strip()
     index += 1
     with open("/app/data/subscriptions.txt", "w", buffering=1) as f:
-        contents = str(index) + contents[1:]
+        contents = str(index) + "\n" + "\n".join(userIDs) + "\n"
         f.write(contents)
 
     for userID in userIDs:
