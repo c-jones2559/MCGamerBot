@@ -602,7 +602,7 @@ async def sendSubscriptions():
         await user.send(f"Quote of the day #{index}:\n{quote}")
 
 #subscribe
-@bot.tree.command(description="Subscribe to daily messages.", name="subscribe")
+@bot.tree.command(description="Subscribes to daily messages.", name="subscribe")
 async def subscribe(interaction):
     log_command("subscribe", interaction)
     with open("/app/data/subscriptions.txt", "r", encoding="utf-8") as f:
@@ -615,7 +615,7 @@ async def subscribe(interaction):
     await interaction.response.send_message("You have subscribed to daily Morgan Pritchard quotes!\nQuotes are delivered in DMs at 12pm UTC.\nUse /unsubscribe to stop receiving them.")
 
 #unsubscribe
-@bot.tree.command(description="Unsubscribe from daily messages.", name="unsubscribe")
+@bot.tree.command(description="Unsubscribes from daily messages.", name="unsubscribe")
 async def unsubscribe(interaction):
     log_command("unsubscribe", interaction)
     with open("/app/data/subscriptions.txt", "r", encoding="utf-8") as f:
