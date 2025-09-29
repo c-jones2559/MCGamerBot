@@ -627,7 +627,7 @@ async def unsubscribe(interaction):
     await interaction.response.send_message("You have unsubscribed from daily Morgan Pritchard quotes.\nUse /subscribe to subscribe again.")
 
 #broadcast
-@bot.tree.command(description="Send a message out to all subscribers.", name="broadcast")
+@bot.tree.command(description="Sends a message out to all subscribers.", name="broadcast")
 async def broadcast(interaction, message: str):
     log_command("broadcast", interaction, message)
     if interaction.user.id != 432316900735713290:
@@ -685,7 +685,7 @@ async def forceSubscriptions(interaction):
     await interaction.response.send_message("Message sent to all subscribers.", ephemeral=True)
 
 #view logs
-@bot.tree.command(description="View the bot logs.", name="view_logs")
+@bot.tree.command(description="Sends recent bot logs to DMs.", name="view_logs")
 async def view_logs(interaction):
     log_command("view_logs", interaction)
     if interaction.user.id != 432316900735713290:
