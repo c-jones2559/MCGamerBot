@@ -278,7 +278,7 @@ async def dmuser(interaction, message: str):
 
 startTime = datetime.now()
 #online
-@bot.tree.command(description="Sends how long the bot has been online", name="online")
+@bot.tree.command(description="Sends how long the bot has been online.", name="online")
 async def online(interaction):
     log_command("online", interaction)
     delta = datetime.now() - startTime
