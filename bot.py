@@ -107,7 +107,7 @@ async def title(interaction, *, message: str):
 @bot.tree.command(description="Sends a link to my cool site.", name="site")
 async def site(interaction):
     log_command("site", interaction)
-    await interaction.response.send_message("Doesn't exist yet sorry but it might one day!")
+    await interaction.response.send_message("https://cjones.cymru")
 
 #info
 @bot.tree.command(description="Sends details about the bot.", name="info")
