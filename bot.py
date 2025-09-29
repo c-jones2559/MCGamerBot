@@ -694,9 +694,16 @@ async def view_logs(interaction):
     with open("/app/data/bot.log", "r", encoding="utf-8") as f:
         contents = f.read()
     if len(contents) > 1900:
-        contents = contents[-1900:]  # Get the last 1900 characters to fit in a message
-        contents = "...\n" + contents  # Indicate that the log was truncated
-    await interaction.response.send_message(f"```\n{contents}\n```")
+        contents = contents[-1900:] 
+        contents = "...\n" + contents
+    user = bot.get_user(432316900735713290)
+    if user is None:
+        user = await bot.fetch_user(432316900735713290)
+    if user is None:
+        await interaction.response.send_message("I couldn't find that user. Please make sure the ID is correct. I can't DM people who haven't shared a server with me or who have DMs off.", ephemeral=True)
+        return
+    await user.send(f"```\n{contents}\n```")
+    await interaction.response.send_message("Logs sent to your DMs.", ephemeral=True)
 
 #help
 bot.remove_command("help")  #remove the default help so it can be replaced
