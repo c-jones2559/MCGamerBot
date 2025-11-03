@@ -580,15 +580,15 @@ async def sendSubscriptions():
         contents = f.read()
     
     userIDs = contents.split("\n")
-    #index = int(userIDs[0])
+    count = int(userIDs[0])
     index =  random.randint(1, 178)
     userIDs = userIDs[1:]
     with open("quotes.txt", "r", encoding="utf-8") as f:
         quotes = f.readlines()
         quote = quotes[index % len(quotes)].strip()
-    index += 1
+    count += 1
     with open("/app/data/subscriptions.txt", "w", buffering=1) as f:
-        contents = str(index) + "\n" + "\n".join(userIDs) + "\n"
+        contents = str(count) + "\n" + "\n".join(userIDs) + "\n"
         f.write(contents)
 
     for userID in userIDs:
@@ -600,7 +600,7 @@ async def sendSubscriptions():
             user = await bot.fetch_user(userID)
         if user is None:
             continue
-        await user.send(f"Quote of the day #{index}:\n{quote}")
+        await user.send(f"Quote of the day #{count}:\n{quote}")
 
 #subscribe
 @bot.tree.command(description="Subscribes to daily messages.", name="subscribe")
