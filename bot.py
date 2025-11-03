@@ -613,7 +613,7 @@ async def subscribe(interaction):
         return
     with open("/app/data/subscriptions.txt", "a", buffering=1) as f:
         f.write(f"{interaction.user.id}\n")
-    await interaction.response.send_message("You have subscribed to daily Morgan Pritchard quotes!\nQuotes are delivered in DMs at 12pm UTC.\nUse /unsubscribe to stop receiving them.")
+    await interaction.response.send_message("You have subscribed to daily quotes!\nQuotes are delivered in DMs at 12pm UTC.\nUse /unsubscribe to stop receiving them.")
 
 #unsubscribe
 @bot.tree.command(description="Unsubscribes from daily messages.", name="unsubscribe")
@@ -625,7 +625,7 @@ async def unsubscribe(interaction):
         contents = contents.replace(f"{interaction.user.id}\n", "")
         with open("/app/data/subscriptions.txt", "w", buffering=1) as f:
             f.write(contents)
-    await interaction.response.send_message("You have unsubscribed from daily Morgan Pritchard quotes.\nUse /subscribe to subscribe again.")
+    await interaction.response.send_message("You have unsubscribed from daily quotes.\nUse /subscribe to subscribe again.")
 
 #broadcast
 @bot.tree.command(description="Sends a message out to all subscribers.", name="broadcast")
