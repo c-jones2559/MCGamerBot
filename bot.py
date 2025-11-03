@@ -181,7 +181,7 @@ async def rolle(interaction, arg: int):
 @bot.tree.command(description="Sends a random quote from Morgan Pritchard.", name="quote")
 async def quote(interaction):
     log_command("quote", interaction)
-    with open("quotes.txt", "r", encoding="utf-8") as file:
+    with open("quotesMP.txt", "r", encoding="utf-8") as file:
         lines = file.readlines()
     if not lines:
         await interaction.response.send_message("No quotes found.")
@@ -580,7 +580,8 @@ async def sendSubscriptions():
         contents = f.read()
     
     userIDs = contents.split("\n")
-    index = int(userIDs[0])
+    #index = int(userIDs[0])
+    index =  random.randint(1, 178)
     userIDs = userIDs[1:]
     with open("quotes.txt", "r", encoding="utf-8") as f:
         quotes = f.readlines()
@@ -662,7 +663,8 @@ async def forceSubscriptions(interaction):
         contents = f.read()
     
     userIDs = contents.split("\n")
-    index = int(userIDs[0])
+    #index = int(userIDs[0])
+    index =  random.randint(1, 178)
     userIDs = userIDs[1:]
     with open("quotes.txt", "r", encoding="utf-8") as f:
         quotes = f.readlines()
